@@ -84,7 +84,7 @@ public class RpcProxy {
                             return res.getResult();
                         }
 
-                        return null;
+                        throw new RpcException("RPC server response time out");
                     }
                 }
         );
