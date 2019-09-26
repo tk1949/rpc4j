@@ -1,14 +1,14 @@
 package test;
 
 import kryo.KryoUtil;
-import message.RpcRequest;
+import message.RequestMessage;
 
 public class KryoTest {
 
     public static void main(String[] args) {
-        RpcRequest request = new RpcRequest();
+        RequestMessage request = new RequestMessage();
         byte[] bytes = KryoUtil.writeToByteArray(request);
 
-        RpcRequest o = KryoUtil.readFromByteArray(bytes);
+        RequestMessage o = KryoUtil.readFromByteArray(bytes);
     }
 }

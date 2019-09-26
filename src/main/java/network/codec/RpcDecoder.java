@@ -13,7 +13,6 @@ public class RpcDecoder extends ByteToMessageDecoder {
         int length = in.readableBytes();
         byte[] code = new byte[length];
         in.readBytes(code);
-
         out.add(KryoUtil.readFromByteArray(code));
     }
 }

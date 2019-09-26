@@ -1,23 +1,21 @@
 package message;
 
-import java.io.Serializable;
-
-public class RpcResponse implements Serializable {
+public class ResponseMessage implements RpcMessage {
 
     private String messageId;
     private boolean sync;
     private Object result;
     private Throwable error;
 
-    public RpcResponse() {}
+    public ResponseMessage() {}
 
-    public RpcResponse(String messageId, boolean sync, Object result) {
+    public ResponseMessage(String messageId, boolean sync, Object result) {
         this.messageId = messageId;
         this.sync = sync;
         this.result = result;
     }
 
-    public RpcResponse(String messageId, boolean sync, Throwable error) {
+    public ResponseMessage(String messageId, boolean sync, Throwable error) {
         this.messageId = messageId;
         this.sync = sync;
         this.error = error;

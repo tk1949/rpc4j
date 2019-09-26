@@ -1,7 +1,7 @@
 package rpc;
 
-import message.RpcRequest;
-import message.RpcResponse;
+import message.RequestMessage;
+import message.ResponseMessage;
 import network.RpcClient;
 import tools.Snowflake;
 
@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
 public class RpcProxy {
 
     private static final HashMap<String, CountDownLatch> locks = new HashMap<>();
-    private static final HashMap<String, RpcResponse> response = new HashMap<>();
+    private static final HashMap<String, ResponseMessage> response = new HashMap<>();
 
-    public static void putResponse(RpcResponse rpc) {
+    public static void putResponse(ResponseMessage rpc) {
         response.put(rpc.getMessageId(), rpc);
         CountDownLatch latch = locks.remove(rpc.getMessageId());
         if (latch != null) {
@@ -41,7 +41,7 @@ public class RpcProxy {
                         Class<?> className = annotation.value();
                         String methodName = method.getName();
                         Class<?>[] parameterTypes = method.getParameterTypes();
-                        RpcRequest request = new RpcRequest(messageId, false, className, methodName, parameterTypes, args);
+                        RequestMessage request = new RequestMessage(messageId, false, className, methodName, parameterTypes, args);
                         RpcClient.client.submit(request);
 
                         return null;
@@ -66,7 +66,7 @@ public class RpcProxy {
                         Class<?> className = annotation.value();
                         String methodName = method.getName();
                         Class<?>[] parameterTypes = method.getParameterTypes();
-                        RpcRequest request = new RpcRequest(messageId, true, className, methodName, parameterTypes, args);
+                        RequestMessage request = new RequestMessage(messageId, true, className, methodName, parameterTypes, args);
 
                         CountDownLatch latch = new CountDownLatch(1);
                         locks.put(messageId, latch);
@@ -75,7 +75,7 @@ public class RpcProxy {
 
                         latch.await(5000, TimeUnit.MILLISECONDS);
 
-                        RpcResponse res = response.remove(messageId);
+                        ResponseMessage res = response.remove(messageId);
 
                         if (res != null) {
                             if (res.hasError()) {

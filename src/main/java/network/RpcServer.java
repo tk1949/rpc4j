@@ -9,12 +9,14 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import message.RpcRequest;
-import message.RpcResponse;
+import message.RpcMessage;
+import message.RequestMessage;
+import message.ResponseMessage;
 import network.codec.RpcDecoder;
 import network.codec.RpcEncoder;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class RpcServer {
 
@@ -40,8 +42,8 @@ public class RpcServer {
                     @Override
                     protected void initChannel(SocketChannel ch) {
                         ch.pipeline().addLast(
-                                new ReadTimeoutHandler(60),
-                                new WriteTimeoutHandler(60),
+                                new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS),
+                                new WriteTimeoutHandler(20000, TimeUnit.MILLISECONDS),
                                 new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 8, 0, 8),
                                 new LengthFieldPrepender(8),
                                 new RpcDecoder(),
@@ -56,27 +58,30 @@ public class RpcServer {
         worker.shutdownGracefully();
     }
 
-    private class SocketFrameHandler extends SimpleChannelInboundHandler<RpcRequest> {
+    private class SocketFrameHandler extends SimpleChannelInboundHandler<RpcMessage> {
 
         @Override
-        public void channelRead0(ChannelHandlerContext ctx, RpcRequest msg) {
-            try {
-                Class<?> className = msg.getClassName();
-                MethodAccess ma = mas.get(className);
-                if (ma == null) {
-                    ma = MethodAccess.get(className);
-                    mas.put(className, ma);
-                    Object o = className.getDeclaredConstructor().newInstance();
-                    beans.put(className, o);
+        public void channelRead0(ChannelHandlerContext ctx, RpcMessage msg) {
+            if (msg instanceof RequestMessage) {
+                RequestMessage req = (RequestMessage) msg;
+                try {
+                    Class<?> className = req.getClassName();
+                    MethodAccess ma = mas.get(className);
+                    if (ma == null) {
+                        ma = MethodAccess.get(className);
+                        mas.put(className, ma);
+                        Object o = className.getDeclaredConstructor().newInstance();
+                        beans.put(className, o);
+                    }
+
+                    Object invoke = ma.invoke(beans.get(className), req.getMethodName(), req.getParameterTypes(), req.getParameters());
+
+                    ResponseMessage response = new ResponseMessage(req.getMessageId(), req.isSync(), invoke);
+                    ctx.channel().writeAndFlush(response);
+                } catch (Exception e) {
+                    ResponseMessage response = new ResponseMessage(req.getMessageId(), req.isSync(), e);
+                    ctx.channel().writeAndFlush(response);
                 }
-
-                Object invoke = ma.invoke(beans.get(className), msg.getMethodName(), msg.getParameterTypes(), msg.getParameters());
-
-                RpcResponse response = new RpcResponse(msg.getMessageId(), msg.isSync(), invoke);
-                ctx.channel().writeAndFlush(response);
-            } catch (Exception e) {
-                RpcResponse response = new RpcResponse(msg.getMessageId(), msg.isSync(), e);
-                ctx.channel().writeAndFlush(response);
             }
         }
 

@@ -1,8 +1,6 @@
 package message;
 
-import java.io.Serializable;
-
-public class RpcRequest implements Serializable {
+public class RequestMessage implements RpcMessage {
 
     private String messageId;
     private boolean sync;
@@ -11,12 +9,12 @@ public class RpcRequest implements Serializable {
     private Class<?>[] parameterTypes;
     private Object[] parameters;
 
-    public RpcRequest() {
+    public RequestMessage() {
     }
 
-    public RpcRequest(String messageId, boolean sync,
-                      Class<?> className, String methodName,
-                      Class<?>[] parameterTypes, Object[] parameters) {
+    public RequestMessage(String messageId, boolean sync,
+                          Class<?> className, String methodName,
+                          Class<?>[] parameterTypes, Object[] parameters) {
         this.messageId = messageId;
         this.sync = sync;
         this.className = className;

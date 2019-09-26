@@ -9,8 +9,10 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import message.RpcRequest;
-import message.RpcResponse;
+import message.PingMessage;
+import message.RpcMessage;
+import message.RequestMessage;
+import message.ResponseMessage;
 import network.codec.RpcDecoder;
 import network.codec.RpcEncoder;
 import org.slf4j.Logger;
@@ -25,7 +27,7 @@ public class RpcClient {
 
     static {
         client = new RpcClient(new NioEventLoopGroup(), "127.0.0.1", 8080);
-        client.start();
+//        client.start();
     }
 
     private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
@@ -58,7 +60,7 @@ public class RpcClient {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(
-                                    new IdleStateHandler(0, 0, 5000, TimeUnit.MILLISECONDS),
+                                    new IdleStateHandler(0, 0, 10000, TimeUnit.MILLISECONDS),
                                     new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 8, 0, 8),
                                     new LengthFieldPrepender(8),
                                     new RpcDecoder(),
@@ -77,7 +79,7 @@ public class RpcClient {
         boos.shutdownGracefully();
     }
 
-    public void submit(RpcRequest msg) {
+    public void submit(RequestMessage msg) {
         channel.writeAndFlush(msg);
     }
 
@@ -85,18 +87,21 @@ public class RpcClient {
         return reconnection == 0;
     }
 
-    private class SocketFrameHandler extends SimpleChannelInboundHandler<RpcResponse> {
+    private class SocketFrameHandler extends SimpleChannelInboundHandler<RpcMessage> {
 
         @Override
-        public void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) {
-            try {
-                if (msg.isSync()) {
-                    RpcProxy.putResponse(msg);
-                } else if (msg.hasError()) {
-                    logger.error("RpcClient -> {} : ", msg.getMessageId(), msg.getError());
+        public void channelRead0(ChannelHandlerContext ctx, RpcMessage msg) {
+            if (msg instanceof ResponseMessage) {
+                try {
+                    ResponseMessage res = (ResponseMessage) msg;
+                    if (res.isSync()) {
+                        RpcProxy.putResponse(res);
+                    } else if (res.hasError()) {
+                        logger.error("RpcClient -> {} : ", res.getMessageId(), res.getError());
+                    }
+                } catch (Exception e) {
+                    logger.error("RpcClient -> channelRead0", e);
                 }
-            } catch (Exception e) {
-                logger.error("RpcClient -> channelRead0", e);
             }
         }
 
@@ -125,7 +130,7 @@ public class RpcClient {
                 IdleStateEvent e = (IdleStateEvent) evt;
                 switch (e.state()) {
                     case ALL_IDLE:
-//                        ctx.channel().writeAndFlush(Unpooled.wrappedBuffer(Ping.single.encode()));
+                        ctx.channel().writeAndFlush(PingMessage.ping);
                         break;
                     default:
                         break;
