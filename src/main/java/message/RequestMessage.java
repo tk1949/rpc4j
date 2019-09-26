@@ -9,8 +9,7 @@ public class RequestMessage implements RpcMessage {
     private Class<?>[] parameterTypes;
     private Object[] parameters;
 
-    public RequestMessage() {
-    }
+    public RequestMessage() {}
 
     public RequestMessage(String messageId, boolean sync,
                           Class<?> className, String methodName,

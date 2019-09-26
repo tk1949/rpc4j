@@ -10,17 +10,14 @@ import java.io.ByteArrayOutputStream;
 
 public class KryoUtil {
 
-    private static final ThreadLocal<Kryo> kryoLocal = new ThreadLocal<Kryo>() {
-        @Override
-        protected Kryo initialValue() {
-            Kryo kryo = new Kryo();
-            kryo.setReferences(true);
-            kryo.setRegistrationRequired(false);
-            ((Kryo.DefaultInstantiatorStrategy) kryo.getInstantiatorStrategy())
-                    .setFallbackInstantiatorStrategy(new StdInstantiatorStrategy());
-            return kryo;
-        }
-    };
+    private static final ThreadLocal<Kryo> kryoLocal = ThreadLocal.withInitial(() -> {
+        Kryo kryo = new Kryo();
+        kryo.setReferences(true);
+        kryo.setRegistrationRequired(false);
+        ((Kryo.DefaultInstantiatorStrategy) kryo.getInstantiatorStrategy())
+                .setFallbackInstantiatorStrategy(new StdInstantiatorStrategy());
+        return kryo;
+    });
 
     public static <T> byte[] writeToByteArray(T obj) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

@@ -3,18 +3,20 @@ package network;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import message.RpcMessage;
-import message.RequestMessage;
-import message.ResponseMessage;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import message.*;
 import network.codec.RpcDecoder;
 import network.codec.RpcEncoder;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +24,7 @@ public class RpcServer {
 
     private static final HashMap<Class<?>, MethodAccess> mas = new HashMap<>();
     private static final HashMap<Class<?>, Object> beans = new HashMap<>();
+    private static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     private EventLoopGroup boos;
     private EventLoopGroup worker;
@@ -53,12 +56,13 @@ public class RpcServer {
                 }).bind(port).sync().channel();
     }
 
-    public void stop() {
-        boos.shutdownGracefully();
-        worker.shutdownGracefully();
-    }
-
     private class SocketFrameHandler extends SimpleChannelInboundHandler<RpcMessage> {
+
+        @Override
+        public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+            channels.add(ctx.channel());
+            super.channelRegistered(ctx);
+        }
 
         @Override
         public void channelRead0(ChannelHandlerContext ctx, RpcMessage msg) {
@@ -82,7 +86,17 @@ public class RpcServer {
                     ResponseMessage response = new ResponseMessage(req.getMessageId(), req.isSync(), e);
                     ctx.channel().writeAndFlush(response);
                 }
+            } else if (msg instanceof RegistrationMessage) {
+                RegistrationMessage req = (RegistrationMessage) msg;
+                InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+//                channels.writeAndFlush(new DiscoveryMessage(socketAddress.getHostName(), req.getPort(), req.getClazz()));
             }
+        }
+
+        @Override
+        public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+            channels.remove(ctx.channel());
+            super.channelUnregistered(ctx);
         }
 
         @Override

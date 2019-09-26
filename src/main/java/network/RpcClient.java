@@ -9,10 +9,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import message.PingMessage;
-import message.RpcMessage;
-import message.RequestMessage;
-import message.ResponseMessage;
+import message.*;
 import network.codec.RpcDecoder;
 import network.codec.RpcEncoder;
 import org.slf4j.Logger;
@@ -27,7 +24,7 @@ public class RpcClient {
 
     static {
         client = new RpcClient(new NioEventLoopGroup(), "127.0.0.1", 8080);
-//        client.start();
+        client.start();
     }
 
     private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
@@ -76,7 +73,6 @@ public class RpcClient {
 
     public void stop() {
         channel.close();
-        boos.shutdownGracefully();
     }
 
     public void submit(RequestMessage msg) {
@@ -102,6 +98,8 @@ public class RpcClient {
                 } catch (Exception e) {
                     logger.error("RpcClient -> channelRead0", e);
                 }
+            } else if (msg instanceof DiscoveryMessage) {
+
             }
         }
 
