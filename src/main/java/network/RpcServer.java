@@ -73,7 +73,6 @@ public class RpcServer {
                 Object invoke = ma.invoke(beans.get(className), msg.getMethodName(), msg.getParameterTypes(), msg.getParameters());
 
                 RpcResponse response = new RpcResponse(msg.getMessageId(), msg.isSync(), invoke);
-                System.out.println(response.isSync());
                 ctx.channel().writeAndFlush(response);
             } catch (Exception e) {
                 RpcResponse response = new RpcResponse(msg.getMessageId(), msg.isSync(), e);
