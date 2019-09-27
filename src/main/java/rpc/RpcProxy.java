@@ -31,7 +31,7 @@ public class RpcProxy {
                 new Class<?>[]{clazz},
                 new InvocationHandler() {
                     @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    public Object invoke(Object proxy, Method method, Object[] args) {
                         RpcFace annotation = method.getDeclaringClass().getAnnotation(RpcFace.class);
                         if (annotation == null) {
                             throw new RpcException("Interface not implemented @RpcFace annotation");

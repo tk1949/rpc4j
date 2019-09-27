@@ -39,21 +39,21 @@ public class RpcServer {
     public void start() throws InterruptedException {
         ServerBootstrap b = new ServerBootstrap();
         b.group(boos, worker)
-                .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 1024 * 2)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        ch.pipeline().addLast(
-                                new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS),
-                                new WriteTimeoutHandler(20000, TimeUnit.MILLISECONDS),
-                                new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 8, 0, 8),
-                                new LengthFieldPrepender(8),
-                                new RpcDecoder(),
-                                new RpcEncoder(),
-                                new SocketFrameHandler());
-                    }
-                }).bind(port).sync().channel();
+         .channel(NioServerSocketChannel.class)
+         .option(ChannelOption.SO_BACKLOG, 1024 * 2)
+         .childHandler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel ch) {
+                 ch.pipeline().addLast(
+                         new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS),
+                         new WriteTimeoutHandler(20000, TimeUnit.MILLISECONDS),
+                         new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 8, 0, 8),
+                         new LengthFieldPrepender(8),
+                         new RpcDecoder(),
+                         new RpcEncoder(),
+                         new SocketFrameHandler());
+             }
+        }).bind(port).sync().channel();
     }
 
     private class SocketFrameHandler extends SimpleChannelInboundHandler<RpcMessage> {

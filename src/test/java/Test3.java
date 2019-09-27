@@ -1,18 +1,18 @@
 import example.Hello;
-import rpc.RpcProxy;
+import example.HelloImp;
 
-public class Main {
+public class Test3 {
 
     public static void main(String[] args) {
         long now;
         long old;
 
-        Hello hello = RpcProxy.synchronize(Hello.class);
+        Hello hello3 = new HelloImp();
         for (int i = 0; i < 1000_0000; i++) {
             now = System.nanoTime();
-            hello.say("Rpc");
+            hello3.say("Rpc");
             old = System.nanoTime() - now;
-            System.out.println("synchronize : " + old);
+            System.out.println("HelloImp : " + old);
         }
     }
 }

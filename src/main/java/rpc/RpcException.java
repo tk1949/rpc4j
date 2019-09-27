@@ -1,6 +1,6 @@
 package rpc;
 
-public class RpcException extends Exception {
+public class RpcException extends RuntimeException {
 
     private int code;
     private String message;
@@ -14,6 +14,10 @@ public class RpcException extends Exception {
     public RpcException(int code, String message) {
         this.code = code;
         this.message = message;
+    }
+
+    public RpcException(Throwable throwable) {
+        super(throwable);
     }
 
     @Override
