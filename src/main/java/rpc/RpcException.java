@@ -1,5 +1,10 @@
 package rpc;
 
+/**
+ * rpc 异常运行时异常处理
+ *
+ * @author TK
+ */
 public class RpcException extends RuntimeException {
 
     private int code;

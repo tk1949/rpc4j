@@ -22,8 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 public class RpcServer {
 
-    private static final HashMap<Class<?>, MethodAccess> mas = new HashMap<>();
-    private static final HashMap<Class<?>, Object> beans = new HashMap<>();
+    private static final HashMap<Class<?>, MethodAccess> opcode_cache = new HashMap<>();
+    private static final HashMap<Class<?>, Object> object_cache = new HashMap<>();
     private static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     private EventLoopGroup boos;
@@ -70,15 +70,15 @@ public class RpcServer {
                 RequestMessage req = (RequestMessage) msg;
                 try {
                     Class<?> className = req.getClassName();
-                    MethodAccess ma = mas.get(className);
+                    MethodAccess ma = opcode_cache.get(className);
                     if (ma == null) {
                         ma = MethodAccess.get(className);
-                        mas.put(className, ma);
+                        opcode_cache.put(className, ma);
                         Object o = className.getDeclaredConstructor().newInstance();
-                        beans.put(className, o);
+                        object_cache.put(className, o);
                     }
 
-                    Object invoke = ma.invoke(beans.get(className), req.getMethodName(), req.getParameterTypes(), req.getParameters());
+                    Object invoke = ma.invoke(object_cache.get(className), req.getMethodName(), req.getParameterTypes(), req.getParameters());
 
                     ResponseMessage response = new ResponseMessage(req.getMessageId(), req.isSync(), invoke);
                     ctx.channel().writeAndFlush(response);

@@ -87,19 +87,19 @@ public class RpcClient {
 
         @Override
         public void channelRead0(ChannelHandlerContext ctx, RpcMessage msg) {
-            if (msg instanceof ResponseMessage) {
-                try {
+            try {
+                if (msg instanceof ResponseMessage) {
                     ResponseMessage res = (ResponseMessage) msg;
                     if (res.isSync()) {
                         RpcProxy.putResponse(res);
                     } else if (res.hasError()) {
                         logger.error("RpcClient -> {} : ", res.getMessageId(), res.getError());
                     }
-                } catch (Exception e) {
-                    logger.error("RpcClient -> channelRead0", e);
-                }
-            } else if (msg instanceof DiscoveryMessage) {
+                } else if (msg instanceof DiscoveryMessage) {
 
+                }
+            } catch(Exception e){
+                logger.error("RpcClient -> channelRead0", e);
             }
         }
 

@@ -12,6 +12,11 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * rpc 动态代理
+ *
+ * @author TK
+ */
 public class RpcProxy {
 
     private static final HashMap<String, CountDownLatch> locks = new HashMap<>();

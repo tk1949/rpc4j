@@ -1,5 +1,10 @@
 package message;
 
+/**
+ * 服务注册信息
+ *
+ * @author TK
+ */
 public class RegistrationMessage implements RpcMessage {
 
     private int port;
