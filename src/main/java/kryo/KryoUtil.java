@@ -8,6 +8,11 @@ import org.objenesis.strategy.StdInstantiatorStrategy;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+/**
+ * 序列化工具封装
+ *
+ * @author TK
+ */
 public class KryoUtil {
 
     private static final ThreadLocal<Kryo> kryoLocal = ThreadLocal.withInitial(() -> {

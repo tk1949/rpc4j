@@ -1,5 +1,10 @@
 package message;
 
+/**
+ * 服务发现信息
+ *
+ * @author TK
+ */
 public class DiscoveryMessage implements RpcMessage {
 
     private String ip;

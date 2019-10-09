@@ -7,6 +7,11 @@ import kryo.KryoUtil;
 
 import java.util.List;
 
+/**
+ * rpc 解码器
+ *
+ * @author TK
+ */
 public class RpcDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {

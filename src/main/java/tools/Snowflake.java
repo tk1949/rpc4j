@@ -1,5 +1,8 @@
 package tools;
 
+/**
+ * Twitter Snowflake
+ */
 public class Snowflake {
 
     private static class SnowflakeLoader {

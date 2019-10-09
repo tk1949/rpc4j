@@ -8,6 +8,7 @@ public class Test2 {
         long old;
 
         Hello hello2 = RpcProxy.asynchronous(Hello.class);
+
         for (int i = 0; i < 1000_0000; i++) {
             now = System.nanoTime();
             hello2.say("Rpc");

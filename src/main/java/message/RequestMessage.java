@@ -1,5 +1,10 @@
 package message;
 
+/**
+ * 请求信息
+ *
+ * @author TK
+ */
 public class RequestMessage implements RpcMessage {
 
     private String messageId;

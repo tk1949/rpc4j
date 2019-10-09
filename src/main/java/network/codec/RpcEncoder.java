@@ -6,6 +6,11 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import kryo.KryoUtil;
 import message.RpcMessage;
 
+/**
+ * rpc 编码器
+ *
+ * @author TK
+ */
 public class RpcEncoder extends MessageToByteEncoder {
     @Override
     protected void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) {
