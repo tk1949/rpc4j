@@ -1,0 +1,31 @@
+# output dir
+target
+
+# KDE
+.directory
+
+# Eclipse
+.project
+.settings
+.classpath
+.factorypath
+.checkstyle
+.cache-main
+.metadata
+
+# IntelliJ IDEA
+*.iml
+!/all-deps/all-deps.iml
+!/tools/idea/**/*.iml
+.idea/*
+!.idea/runConfigurations
+!.idea/scopes
+!.idea/inspectionProfies
+!.idea/codeStyles
+!.idea/copyright
+!.idea/checkstyle-idea.xml
+
+dependency-reduced-pom.xml
+
+# log files
+logs/*
